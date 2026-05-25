@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generador de Contrarreferencias HCV</title>
+  <style>
+    :root {
+      --azul-hcv: #24384d;
+      --borde: #1f2933;
+      --gris: #f4f6f8;
+      --texto: #1f2933;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #eef1f5;
+      color: var(--texto);
+    }
+
+    .app {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 28px 18px;
+      display: block;
+    }
+
+    .panel {
+      background: #fff;
+      border-radius: 18px;
+      padding: 26px;
+      box-shadow: 0 14px 34px rgba(20, 31, 44, 0.10);
+    }
+
+    .panel h1 {
+      margin: 0 0 6px;
+      font-size: 26px;
+      color: var(--azul-hcv);
+      line-height: 1.2;
+    }
+
+    .panel p {
+      margin: 0 0 22px;
+      color: #52616f;
+      font-size: 15px;
+    }
+
+    fieldset {
+      border: 1px solid #d7dee7;
+      border-radius: 14px;
+      padding: 18px;
+      margin: 0 0 18px;
+      background: #fbfcfe;
+    }
+
+    legend {
+      padding: 0 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--azul-hcv);
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      margin: 10px 0 5px;
+      color: #34495e;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid #cbd5df;
+      border-radius: 10px;
+      padding: 11px 12px;
+      font: inherit;
+      font-size: 15px;
+      background: #fff;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: 3px solid rgba(36, 56, 77, 0.14);
+      border-color: var(--azul-hcv);
+    }
+
+    input[readonly] {
+      background: #f8fafc;
+      color: #475569;
+    }
+
+    textarea {
+      min-height: 105px;
+      resize: vertical;
+      line-height: 1.4;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .radio-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .radio-row label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+      font-weight: 500;
+    }
+
+    .radio-row input {
+      width: auto;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      position: sticky;
+      bottom: 0;
+      background: linear-gradient(to top, #fff 75%, rgba(255,255,255,0));
+      padding-top: 18px;
+      padding-bottom: 4px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 13px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .btn-primary {
+      background: var(--azul-hcv);
+      color: white;
+      flex: 1;
+    }
+
+    .btn-secondary {
+      background: #e7ecf2;
+      color: #1f2933;
+    }
+
+    .print-area {
+      display: none;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      background: #fff;
+      padding: 13mm 15mm 12mm;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
+      color: #111;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
+    .doc-header {
+      display: grid;
+      grid-template-columns: 160px 1fr 160px;
+      align-items: start;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand img {
+      max-width: 155px;
+      max-height: 62px;
+      object-fit: contain;
+    }
+
+    .logo-fallback {
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-box {
+      width: 54px;
+      height: 54px;
+      background: var(--azul-hcv);
+      color: white;
+      font-weight: 700;
+      font-size: 18px;
+      line-height: 1.05;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      letter-spacing: 2px;
+    }
+
+    .logo-text {
+      font-weight: 800;
+      color: #222;
+      font-size: 16px;
+      line-height: 1.08;
+    }
+
+    .logo-text small {
+      display: block;
+      font-weight: 400;
+      font-size: 9px;
+      margin-top: 2px;
+    }
+
+    .doc-title {
+      text-align: center;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      font-size: 17px;
+      padding-top: 4px;
+    }
+
+    .doc-title span {
+      display: block;
+      font-size: 16px;
+      margin-top: 4px;
+    }
+
+    .doc-code {
+      text-align: right;
+      font-size: 10px;
+      color: #333;
+      min-height: 45px;
+    }
+
+    .top-fields {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 16px;
+      margin-bottom: 10px;
+      align-items: end;
+    }
+
+    .date-row {
+      display: flex;
+      align-items: end;
+      gap: 8px;
+    }
+
+    .date-label {
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .date-group {
+      text-align: center;
+      font-size: 9px;
+    }
+
+    .date-boxes {
+      display: flex;
+      gap: 2px;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .box {
+      width: 16px;
+      height: 16px;
+      border: 1px solid var(--borde);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      line-height: 1;
+    }
+
+    .line-field {
+      border-bottom: 1px solid var(--borde);
+      min-height: 17px;
+      padding: 2px 4px 1px;
+      font-weight: 500;
+    }
+
+    .label-inline {
+      font-size: 10px;
+      color: #222;
+      margin-bottom: 2px;
+      font-weight: 700;
+    }
+
+    .section-box {
+      border: 1px solid var(--borde);
+      margin-top: 8px;
+    }
+
+    .section-title {
+      font-weight: 800;
+      padding: 5px 7px 3px;
+      border-bottom: 1px solid var(--borde);
+      background: #fff;
+    }
+
+    .patient-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1.05fr 1.35fr;
+      border-bottom: 1px solid var(--borde);
+    }
+
+    .cell {
+      min-height: 28px;
+      padding: 3px 5px;
+      border-right: 1px solid var(--borde);
+    }
+
+    .cell:last-child {
+      border-right: 0;
+    }
+
+    .cell-label {
+      display: block;
+      font-size: 8px;
+      color: #333;
+      margin-bottom: 2px;
+    }
+
+    .cell-value {
+      font-size: 11px;
+      font-weight: 600;
+      min-height: 13px;
+    }
+
+    .patient-row-2 {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr 0.7fr 1fr;
+      border-bottom: 1px solid var(--borde);
+    }
+
+    .sex-print {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+      font-size: 10px;
+      padding-top: 3px;
+    }
+
+    .checkline {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .check {
+      width: 11px;
+      height: 11px;
+      border: 1px solid var(--borde);
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .text-section {
+      border: 1px solid var(--borde);
+      margin-top: 9px;
+      min-height: 96px;
+    }
+
+    .text-section.tall {
+      min-height: 140px;
+    }
+
+    .text-section.medium {
+      min-height: 118px;
+    }
+
+    .text-heading {
+      font-weight: 800;
+      padding: 5px 7px 2px;
+    }
+
+    .lined-content {
+      padding: 3px 8px 7px;
+      min-height: 70px;
+      white-space: pre-wrap;
+      font-size: 11px;
+      line-height: 1.55;
+      background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 17px,
+        rgba(31, 41, 51, 0.85) 18px
+      );
+      background-size: 100% 18px;
+    }
+
+    .doctor-box {
+      margin-top: 20px;
+      border: 1px solid var(--borde);
+    }
+
+    .doctor-title {
+      font-weight: 800;
+      padding: 4px 6px 2px;
+      border-bottom: 1px solid var(--borde);
+    }
+
+    .doctor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.1fr 0.9fr;
+    }
+
+    .signature-space {
+      display: grid;
+      grid-template-columns: 1fr 190px;
+      gap: 22px;
+      align-items: end;
+      margin-top: 20px;
+    }
+
+    .signature-line {
+      border-top: 1px solid var(--borde);
+      text-align: center;
+      padding-top: 4px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .footer-note {
+      font-size: 8px;
+      color: #333;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 700px) {
+      .app {
+        padding: 12px;
+      }
+
+      .panel {
+        padding: 18px;
+        border-radius: 14px;
+      }
+
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+
+      body {
+        background: white;
+      }
+
+      .panel, .actions, .no-print {
+        display: none !important;
+      }
+
+      .app, .print-area {
+        display: block;
+        padding: 0;
+        margin: 0;
+        background: white;
+        max-width: none;
+        width: auto;
+      }
+
+      .page {
+        width: 210mm;
+        min-height: 297mm;
+        box-shadow: none;
+        margin: 0;
+        padding: 12mm 14mm 10mm;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="panel no-print">
+      <h1>Generador de Contrarreferencia</h1>
+      <p>Completa los campos y presiona imprimir. No se mostrará una previsualización en pantalla; el documento se armará solo al momento de imprimir.</p>
+
+      <form id="formContrarreferencia">
+        <fieldset>
+          <legend>Datos generales</legend>
+          <label for="fecha">Fecha</label>
+          <input id="fecha" type="text" readonly />
+
+          <label for="establecimiento">Establecimiento al que se contrarrefiere</label>
+          <input id="establecimiento" type="text" placeholder="Ej: CESFAM, CECOSF, Posta Rural..." />
+        </fieldset>
+
+        <fieldset>
+          <legend>Datos del paciente</legend>
+          <div class="grid-2">
+            <div>
+              <label for="pacApePat">Apellido paterno</label>
+              <input id="pacApePat" type="text" />
+            </div>
+            <div>
+              <label for="pacApeMat">Apellido materno</label>
+              <input id="pacApeMat" type="text" />
+            </div>
+          </div>
+
+          <label for="pacNombre">Nombre</label>
+          <input id="pacNombre" type="text" />
+
+          <div class="grid-2">
+            <div>
+              <label for="pacRut">RUT</label>
+              <input id="pacRut" type="text" placeholder="12.345.678-9" />
+            </div>
+            <div>
+              <label for="pacEdad">Edad</label>
+              <input id="pacEdad" type="number" min="0" />
+            </div>
+          </div>
+
+          <label>Sexo</label>
+          <div class="radio-row">
+            <label><input type="radio" name="sexo" value="Mujer" /> Mujer</label>
+            <label><input type="radio" name="sexo" value="Hombre" /> Hombre</label>
+          </div>
+
+          <label for="pacTelefono">Teléfono de contacto</label>
+          <input id="pacTelefono" type="tel" />
+        </fieldset>
+
+        <fieldset>
+          <legend>Datos clínicos</legend>
+          <label for="diagnostico">Datos clínicos / diagnóstico</label>
+          <textarea id="diagnostico"></textarea>
+
+          <label for="examenes">Exámenes realizados</label>
+          <textarea id="examenes"></textarea>
+
+          <label for="tratamiento">Tratamiento efectuado</label>
+          <textarea id="tratamiento"></textarea>
+
+          <label for="indicaciones">Indicación para APS</label>
+          <textarea id="indicaciones"></textarea>
+        </fieldset>
+
+        <fieldset>
+          <legend>Datos del médico contrarreferente</legend>
+          <div class="grid-2">
+            <div>
+              <label for="medApePat">Apellido paterno</label>
+              <input id="medApePat" type="text" />
+            </div>
+            <div>
+              <label for="medApeMat">Apellido materno</label>
+              <input id="medApeMat" type="text" />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label for="medNombre">Nombre</label>
+              <input id="medNombre" type="text" />
+            </div>
+            <div>
+              <label for="medRut">RUT médico</label>
+              <input id="medRut" type="text" />
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="actions">
+          <button type="button" class="btn-primary" id="btnImprimir">Imprimir</button>
+          <button type="button" class="btn-secondary" id="btnLimpiar">Limpiar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="print-area">
+      <article class="page" id="documentoImpresion">
+        <header class="doc-header">
+          <div class="brand">
+            <!-- Guarda el logo adjunto en la misma carpeta que este HTML con el nombre: logo-hcv.png -->
+            <img src="logo-hcv.png" alt="Hospital Claudio Vicuña" onerror="this.style.display='none'; document.querySelector('.logo-fallback').style.display='flex';" />
+            <div class="logo-fallback">
+              <div class="logo-box">H<br>C<br>V</div>
+              <div class="logo-text">HOSPITAL<br>CLAUDIO<br>VICUÑA<small>SAN ANTONIO</small></div>
+            </div>
+          </div>
+
+          <div class="doc-title">
+            CONTRARREFERENCIA
+            <span>SERVICIO DE SALUD VALPARAÍSO - SAN ANTONIO</span>
+          </div>
+
+          <div class="doc-code"></div>
+        </header>
+
+        <div class="top-fields">
+          <div class="date-row">
+            <div class="date-label">Fecha:</div>
+            <div class="date-group">
+              Día
+              <div class="date-boxes"><span class="box" id="d1"></span><span class="box" id="d2"></span></div>
+            </div>
+            <div class="date-group">
+              Mes
+              <div class="date-boxes"><span class="box" id="m1"></span><span class="box" id="m2"></span></div>
+            </div>
+            <div class="date-group">
+              Año
+              <div class="date-boxes"><span class="box" id="a1"></span><span class="box" id="a2"></span><span class="box" id="a3"></span><span class="box" id="a4"></span></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="label-inline">Establecimiento al que se contrarrefiere</div>
+            <div class="line-field" id="pEstablecimiento"></div>
+          </div>
+        </div>
+
+        <section class="section-box">
+          <div class="section-title">Datos del (de la) Paciente</div>
+          <div class="patient-grid">
+            <div class="cell"><span class="cell-label">Apellido paterno</span><div class="cell-value" id="pPacApePat"></div></div>
+            <div class="cell"><span class="cell-label">Apellido materno</span><div class="cell-value" id="pPacApeMat"></div></div>
+            <div class="cell"><span class="cell-label">Nombre</span><div class="cell-value" id="pPacNombre"></div></div>
+          </div>
+          <div class="patient-row-2">
+            <div class="cell"><span class="cell-label">RUT</span><div class="cell-value" id="pPacRut"></div></div>
+            <div class="cell">
+              <span class="cell-label">Sexo</span>
+              <div class="sex-print">
+                <span class="checkline"><span class="check" id="checkMujer"></span> Mujer</span>
+                <span class="checkline"><span class="check" id="checkHombre"></span> Hombre</span>
+              </div>
+            </div>
+            <div class="cell"><span class="cell-label">Edad</span><div class="cell-value"><span id="pPacEdad"></span> años</div></div>
+            <div class="cell"><span class="cell-label">Teléfono de contacto</span><div class="cell-value" id="pPacTelefono"></div></div>
+          </div>
+        </section>
+
+        <section class="text-section medium">
+          <div class="text-heading">Datos clínicos / diagnóstico:</div>
+          <div class="lined-content" id="pDiagnostico"></div>
+        </section>
+
+        <section class="text-section tall">
+          <div class="text-heading">Exámenes realizados:</div>
+          <div class="lined-content" id="pExamenes"></div>
+        </section>
+
+        <section class="text-section tall">
+          <div class="text-heading">Tratamiento efectuado:</div>
+          <div class="lined-content" id="pTratamiento"></div>
+        </section>
+
+        <section class="text-section medium">
+          <div class="text-heading">Indicación para APS:</div>
+          <div class="lined-content" id="pIndicaciones"></div>
+        </section>
+
+        <section class="doctor-box">
+          <div class="doctor-title">Datos del profesional contrarreferente</div>
+          <div class="doctor-grid">
+            <div class="cell"><span class="cell-label">Apellido paterno</span><div class="cell-value" id="pMedApePat"></div></div>
+            <div class="cell"><span class="cell-label">Apellido materno</span><div class="cell-value" id="pMedApeMat"></div></div>
+            <div class="cell"><span class="cell-label">Nombre</span><div class="cell-value" id="pMedNombre"></div></div>
+            <div class="cell"><span class="cell-label">RUT</span><div class="cell-value" id="pMedRut"></div></div>
+          </div>
+        </section>
+
+        <div class="signature-space">
+          <div></div>
+          <div class="signature-line">Firma y timbre</div>
+        </div>
+
+        <div class="footer-note"></div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    function pad2(n) {
+      return String(n).padStart(2, '0');
+    }
+
+    function fechaActual() {
+      const hoy = new Date();
+      return {
+        dia: pad2(hoy.getDate()),
+        mes: pad2(hoy.getMonth() + 1),
+        anio: String(hoy.getFullYear())
+      };
+    }
+
+    function setText(id, value) {
+      $(id).textContent = value || '';
+    }
+
+    function valorRadio(name) {
+      const seleccionado = document.querySelector(`input[name="${name}"]:checked`);
+      return seleccionado ? seleccionado.value : '';
+    }
+
+    function actualizarDocumento() {
+      const f = fechaActual();
+      $('fecha').value = `${f.dia}/${f.mes}/${f.anio}`;
+
+      setText('d1', f.dia[0]);
+      setText('d2', f.dia[1]);
+      setText('m1', f.mes[0]);
+      setText('m2', f.mes[1]);
+      setText('a1', f.anio[0]);
+      setText('a2', f.anio[1]);
+      setText('a3', f.anio[2]);
+      setText('a4', f.anio[3]);
+
+      setText('pEstablecimiento', $('establecimiento').value);
+
+      setText('pPacApePat', $('pacApePat').value);
+      setText('pPacApeMat', $('pacApeMat').value);
+      setText('pPacNombre', $('pacNombre').value);
+      setText('pPacRut', $('pacRut').value);
+      setText('pPacEdad', $('pacEdad').value);
+      setText('pPacTelefono', $('pacTelefono').value);
+
+      const sexo = valorRadio('sexo');
+      setText('checkMujer', sexo === 'Mujer' ? 'X' : '');
+      setText('checkHombre', sexo === 'Hombre' ? 'X' : '');
+
+      setText('pDiagnostico', $('diagnostico').value);
+      setText('pExamenes', $('examenes').value);
+      setText('pTratamiento', $('tratamiento').value);
+      setText('pIndicaciones', $('indicaciones').value);
+
+      setText('pMedApePat', $('medApePat').value);
+      setText('pMedApeMat', $('medApeMat').value);
+      setText('pMedNombre', $('medNombre').value);
+      setText('pMedRut', $('medRut').value);
+    }
+
+    function limpiarFormulario() {
+      document.getElementById('formContrarreferencia').reset();
+      actualizarDocumento();
+    }
+
+    document.querySelectorAll('input, textarea').forEach((el) => {
+      el.addEventListener('input', actualizarDocumento);
+      el.addEventListener('change', actualizarDocumento);
+    });
+
+    $('btnImprimir').addEventListener('click', () => {
+      actualizarDocumento();
+      window.print();
+    });
+
+    $('btnLimpiar').addEventListener('click', limpiarFormulario);
+
+    actualizarDocumento();
+  </script>
+</body>
+</html>
