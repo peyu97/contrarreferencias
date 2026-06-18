@@ -524,7 +524,7 @@
         <fieldset>
           <legend>Datos generales</legend>
           <label for="fecha">Fecha</label>
-          <input id="fecha" type="text" readonly />
+          <input id="fecha" type="text" placeholder="DD/MM/AAAA" />
 
           <label for="establecimiento">Establecimiento al que se contrarrefiere</label>
           <input id="establecimiento" type="text" placeholder="Ej: CESFAM, CECOSF, Posta Rural..." />
@@ -740,6 +740,29 @@
       };
     }
 
+    function textoFecha(f) {
+      return `${f.dia}/${f.mes}/${f.anio}`;
+    }
+
+    function completarFechaActual() {
+      $('fecha').value = textoFecha(fechaActual());
+    }
+
+    function fechaDelFormulario() {
+      const valor = $('fecha').value.trim();
+      const partes = valor.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/);
+
+      if (!partes) {
+        return { dia: '', mes: '', anio: '' };
+      }
+
+      return {
+        dia: pad2(partes[1]),
+        mes: pad2(partes[2]),
+        anio: partes[3]
+      };
+    }
+
     function setText(id, value) {
       $(id).textContent = value || '';
     }
@@ -750,8 +773,7 @@
     }
 
     function actualizarDocumento() {
-      const f = fechaActual();
-      $('fecha').value = `${f.dia}/${f.mes}/${f.anio}`;
+      const f = fechaDelFormulario();
 
       setText('d1', f.dia[0]);
       setText('d2', f.dia[1]);
@@ -788,6 +810,7 @@
 
     function limpiarFormulario() {
       document.getElementById('formContrarreferencia').reset();
+      completarFechaActual();
       actualizarDocumento();
     }
 
@@ -803,6 +826,7 @@
 
     $('btnLimpiar').addEventListener('click', limpiarFormulario);
 
+    completarFechaActual();
     actualizarDocumento();
   </script>
 </body>
